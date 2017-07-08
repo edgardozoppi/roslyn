@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
+﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Concurrent;
@@ -197,6 +197,20 @@ namespace Microsoft.CodeAnalysis.Semantics
                     return CreateBoundPatternSwitchLabelOperation((BoundPatternSwitchLabel)boundNode);
                 case BoundKind.IsPatternExpression:
                     return CreateBoundIsPatternExpressionOperation((BoundIsPatternExpression)boundNode);
+
+                // To support BoundNodes after lowering phase.
+                case BoundKind.SequencePoint:
+                    return CreateBoundSequencePointOperation((BoundSequencePoint)boundNode);
+                case BoundKind.SequencePointWithSpan:
+                    return CreateBoundSequencePointWithSpanOperation((BoundSequencePointWithSpan)boundNode);
+                case BoundKind.SequencePointExpression:
+                    return CreateBoundSequencePointExpressionOperation((BoundSequencePointExpression)boundNode);
+                case BoundKind.StatementList:
+                    return CreateBoundStatementListOperation((BoundStatementList)boundNode);
+                case BoundKind.ConditionalGoto:
+                    return CreateBoundConditionalGotoOperation((BoundConditionalGoto)boundNode);
+
+
                 default:
                     var constantValue = ConvertToOptional((boundNode as BoundExpression)?.ConstantValue);
                     return Operation.CreateOperationNone(boundNode.HasErrors, boundNode.Syntax, constantValue, getChildren: () => GetIOperationChildren(boundNode));
@@ -783,7 +797,7 @@ namespace Microsoft.CodeAnalysis.Semantics
         private IBlockStatement CreateBoundBlockOperation(BoundBlock boundBlock)
         {
             Lazy<ImmutableArray<IOperation>> statements =
-                new Lazy<ImmutableArray<IOperation>>(() => boundBlock.Statements.Select(s => Create(s)).Where(s => s.Kind != OperationKind.None).ToImmutableArray());
+                new Lazy<ImmutableArray<IOperation>>(() => boundBlock.Statements.Select(s => Create(s)).Where(s => s != null && s.Kind != OperationKind.None).ToImmutableArray());
 
             ImmutableArray<ILocalSymbol> locals = boundBlock.Locals.As<ILocalSymbol>();
             bool isInvalid = boundBlock.HasErrors;
@@ -1202,6 +1216,46 @@ namespace Microsoft.CodeAnalysis.Semantics
             ITypeSymbol type = boundIsPatternExpression.Type;
             Optional<object> constantValue = ConvertToOptional(boundIsPatternExpression.ConstantValue);
             return new LazyIsPatternExpression(expression, pattern, isInvalid, syntax, type, constantValue);
+        }
+
+        private IOperation CreateBoundSequencePointOperation(BoundSequencePoint boundSequencePoint)
+        {
+            return Create(boundSequencePoint.StatementOpt);
+        }
+
+        private IOperation CreateBoundSequencePointWithSpanOperation(BoundSequencePointWithSpan boundSequencePointWithSpan)
+        {
+            return Create(boundSequencePointWithSpan.StatementOpt);
+        }
+
+        private IOperation CreateBoundSequencePointExpressionOperation(BoundSequencePointExpression boundSequencePointExpression)
+        {
+            return Create(boundSequencePointExpression.Expression);
+        }
+
+        private IBlockStatement CreateBoundStatementListOperation(BoundStatementList boundStatementList)
+        {
+            Lazy<ImmutableArray<IOperation>> statements =
+                new Lazy<ImmutableArray<IOperation>>(() => boundStatementList.Statements.Select(s => Create(s)).Where(s => s != null && s.Kind != OperationKind.None).ToImmutableArray());
+
+            ImmutableArray<ILocalSymbol> locals = ImmutableArray<ILocalSymbol>.Empty;
+            bool isInvalid = boundStatementList.HasErrors;
+            SyntaxNode syntax = boundStatementList.Syntax;
+            ITypeSymbol type = null;
+            Optional<object> constantValue = default(Optional<object>);
+            return new LazyBlockStatement(statements, locals, isInvalid, syntax, type, constantValue);
+        }
+
+        private IConditionalGotoStatement CreateBoundConditionalGotoOperation(BoundConditionalGoto boundConditionalGoto)
+        {
+            Lazy<IOperation> condition = new Lazy<IOperation>(() => Create(boundConditionalGoto.Condition));
+            ILabelSymbol target = boundConditionalGoto.Label;
+            bool jumpIfTrue = boundConditionalGoto.JumpIfTrue;
+            bool isInvalid = boundConditionalGoto.HasErrors;
+            SyntaxNode syntax = boundConditionalGoto.Syntax;
+            ITypeSymbol type = null;
+            Optional<object> constantValue = default(Optional<object>);
+            return new LazyConditionalGotoStatement(condition, target, jumpIfTrue, isInvalid, syntax, type, constantValue);
         }
     }
 }

@@ -199,5 +199,10 @@ namespace Microsoft.CodeAnalysis
         DeclarationPattern = 0x410,
         /// <summary>Indicates an <see cref="IPatternCaseClause"/>.</summary>
         PatternCaseClause = 0x411,
+
+        // Operations that occur only after lowering phase.
+
+        /// <summary>Indicates an <see cref="IConditionalGotoStatement"/>.</summary>
+        ConditionalGotoStatement = 0x412,
     }
 }

@@ -50,6 +50,7 @@
     <Compile Include="Operations\IAssignmentExpression.cs" />
     <Compile Include="Operations\IAwaitExpression.cs" />
     <Compile Include="Operations\IBinaryOperatorExpression.cs" />
+    <Compile Include="Operations\IConditionalGotoStatement.cs" />
     <Compile Include="Operations\IIsPatternExpression.cs" />
     <Compile Include="Operations\IPatternCaseClause.cs" />
     <Compile Include="Operations\IConstantPattern.cs" />
