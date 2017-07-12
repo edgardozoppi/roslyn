@@ -521,6 +521,10 @@ Microsoft.CodeAnalysis.Semantics.IRelationalCaseClause.Relation.get -> Microsoft
 Microsoft.CodeAnalysis.Semantics.IRelationalCaseClause.Value.get -> Microsoft.CodeAnalysis.IOperation
 Microsoft.CodeAnalysis.Semantics.IReturnStatement
 Microsoft.CodeAnalysis.Semantics.IReturnStatement.ReturnedValue.get -> Microsoft.CodeAnalysis.IOperation
+Microsoft.CodeAnalysis.Semantics.ISequenceExpression
+Microsoft.CodeAnalysis.Semantics.ISequenceExpression.Expressions.get -> System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.IOperation>
+Microsoft.CodeAnalysis.Semantics.ISequenceExpression.Locals.get -> System.Collections.Immutable.ImmutableArray<Microsoft.CodeAnalysis.ILocalSymbol>
+Microsoft.CodeAnalysis.Semantics.ISequenceExpression.Value.get -> Microsoft.CodeAnalysis.IOperation
 Microsoft.CodeAnalysis.Semantics.ISimpleAssignmentExpression
 Microsoft.CodeAnalysis.Semantics.ISingleValueCaseClause
 Microsoft.CodeAnalysis.Semantics.ISingleValueCaseClause.Equality.get -> Microsoft.CodeAnalysis.Semantics.BinaryOperationKind
@@ -876,6 +880,7 @@ virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitPropertyReference
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitRangeCaseClause(Microsoft.CodeAnalysis.Semantics.IRangeCaseClause operation) -> void
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitRelationalCaseClause(Microsoft.CodeAnalysis.Semantics.IRelationalCaseClause operation) -> void
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitReturnStatement(Microsoft.CodeAnalysis.Semantics.IReturnStatement operation) -> void
+virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitSequenceExpression(Microsoft.CodeAnalysis.Semantics.ISequenceExpression operation) -> void
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitSimpleAssignmentExpression(Microsoft.CodeAnalysis.Semantics.ISimpleAssignmentExpression operation) -> void
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitSingleValueCaseClause(Microsoft.CodeAnalysis.Semantics.ISingleValueCaseClause operation) -> void
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor.VisitSizeOfExpression(Microsoft.CodeAnalysis.Semantics.ISizeOfExpression operation) -> void
@@ -959,6 +964,7 @@ virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.Vi
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitRangeCaseClause(Microsoft.CodeAnalysis.Semantics.IRangeCaseClause operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitRelationalCaseClause(Microsoft.CodeAnalysis.Semantics.IRelationalCaseClause operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitReturnStatement(Microsoft.CodeAnalysis.Semantics.IReturnStatement operation, TArgument argument) -> TResult
+virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitSequenceExpression(Microsoft.CodeAnalysis.Semantics.ISequenceExpression operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitSimpleAssignmentExpression(Microsoft.CodeAnalysis.Semantics.ISimpleAssignmentExpression operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitSingleValueCaseClause(Microsoft.CodeAnalysis.Semantics.ISingleValueCaseClause operation, TArgument argument) -> TResult
 virtual Microsoft.CodeAnalysis.Semantics.OperationVisitor<TArgument, TResult>.VisitSizeOfExpression(Microsoft.CodeAnalysis.Semantics.ISizeOfExpression operation, TArgument argument) -> TResult

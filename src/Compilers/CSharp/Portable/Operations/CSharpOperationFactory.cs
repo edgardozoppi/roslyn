@@ -209,7 +209,8 @@ namespace Microsoft.CodeAnalysis.Semantics
                     return CreateBoundStatementListOperation((BoundStatementList)boundNode);
                 case BoundKind.ConditionalGoto:
                     return CreateBoundConditionalGotoOperation((BoundConditionalGoto)boundNode);
-
+                case BoundKind.Sequence:
+                    return CreateBoundSequenceOperation((BoundSequence)boundNode);
 
                 default:
                     var constantValue = ConvertToOptional((boundNode as BoundExpression)?.ConstantValue);
@@ -1256,6 +1257,20 @@ namespace Microsoft.CodeAnalysis.Semantics
             ITypeSymbol type = null;
             Optional<object> constantValue = default(Optional<object>);
             return new LazyConditionalGotoStatement(condition, target, jumpIfTrue, isInvalid, syntax, type, constantValue);
+        }
+
+        private IOperation CreateBoundSequenceOperation(BoundSequence boundSequence)
+        {
+            Lazy<ImmutableArray<IOperation>> expressions =
+                new Lazy<ImmutableArray<IOperation>>(() => boundSequence.SideEffects.Select(s => Create(s)).Where(s => s != null && s.Kind != OperationKind.None).ToImmutableArray());
+
+            Lazy<IOperation> value = new Lazy<IOperation>(() => Create(boundSequence.Value));
+            ImmutableArray<ILocalSymbol> locals = boundSequence.Locals.As<ILocalSymbol>();
+            bool isInvalid = boundSequence.HasErrors;
+            SyntaxNode syntax = boundSequence.Syntax;
+            ITypeSymbol type = null;
+            Optional<object> constantValue = default(Optional<object>);
+            return new LazySequenceExpression(expressions, value, locals, isInvalid, syntax, type, constantValue);
         }
     }
 }
