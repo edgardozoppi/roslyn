@@ -459,5 +459,16 @@ namespace Microsoft.CodeAnalysis.Semantics
             Visit(operation.Pattern);
             Visit(operation.GuardExpression);
         }
+
+        public override void VisitConditionalGotoStatement(IConditionalGotoStatement operation)
+        {
+            Visit(operation.Condition);
+        }
+
+        public override void VisitSequenceExpression(ISequenceExpression operation)
+        {
+            VisitArray(operation.Expressions);
+            Visit(operation.Value);
+        }
     }
 }
