@@ -48,10 +48,10 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
 
         #endregion
 
-        protected readonly AbstractDomain<TAbstractValue> _domain;
-        protected readonly IDictionary<BasicBlock, DataFlowAnalysisResult> _result;
+        protected AbstractDomain<TAbstractValue> _domain;
+        protected IDictionary<BasicBlock, DataFlowAnalysisResult> _result;
 
-        public DataFlowAnalysis(AbstractDomain<TAbstractValue> domain)
+        protected void Initialize(AbstractDomain<TAbstractValue> domain)
         {
             _domain = domain;
             _result = new Dictionary<BasicBlock, DataFlowAnalysisResult>();
@@ -118,11 +118,6 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
 
     internal abstract class ForwardDataFlowAnalysis<TAbstractValue> : DataFlowAnalysis<TAbstractValue>
     {
-        public ForwardDataFlowAnalysis(AbstractDomain<TAbstractValue> domain)
-            : base(domain)
-        {
-        }
-
         protected override BasicBlock Entry(ControlFlowGraph cfg) => cfg.Entry;
 
         protected override IEnumerable<BasicBlock> Predecessors(BasicBlock block) => block.Predecessors;
@@ -140,11 +135,6 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
 
     internal abstract class BackwardDataFlowAnalysis<TAbstractValue> : DataFlowAnalysis<TAbstractValue>
     {
-        public BackwardDataFlowAnalysis(AbstractDomain<TAbstractValue> domain)
-            : base(domain)
-        {
-        }
-
         protected override BasicBlock Entry(ControlFlowGraph cfg) => cfg.Exit;
 
         protected override IEnumerable<BasicBlock> Predecessors(BasicBlock block) => block.Successors;

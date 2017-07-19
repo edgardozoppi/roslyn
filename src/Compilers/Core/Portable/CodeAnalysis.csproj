@@ -33,6 +33,8 @@
     <Compile Include="Dataflow\ControlFlowGraphGenerator.cs" />
     <Compile Include="Dataflow\DGMLSerializer.cs" />
     <Compile Include="Dataflow\Helper.cs" />
+    <Compile Include="Dataflow\MappingAbstractDomain.cs" />
+    <Compile Include="Dataflow\ZeroAnalysis.cs" />
     <Compile Include="DiagnosticAnalyzer\AnalyzerManager.AnalyzerExecutionContext.cs" />
     <Compile Include="Generated\Operations.xml.Generated.cs" />
     <Compile Include="InternalUtilities\CommandLineUtilities.cs" />
