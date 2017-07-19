@@ -28,6 +28,7 @@
       <Visible>false</Visible>
     </Content>
     <Compile Include="CommitHashAttribute.cs" />
+    <Compile Include="Dataflow\DataFlowAnalysis.cs" />
     <Compile Include="Dataflow\ControlFlowGraph.cs" />
     <Compile Include="Dataflow\ControlFlowGraphGenerator.cs" />
     <Compile Include="Dataflow\DGMLSerializer.cs" />
