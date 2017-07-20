@@ -86,24 +86,9 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
         {
             switch (statement.Kind)
             {
-                case OperationKind.VariableDeclarationStatement:
-                    Flow(statement as IVariableDeclarationStatement, output);
-                    break;
-
                 case OperationKind.ExpressionStatement:
                     Flow(statement as IExpressionStatement, output);
                     break;
-            }
-        }
-
-        private void Flow(IVariableDeclarationStatement statement, ZeroAnalysisAbstractValue output)
-        {
-            foreach (var declaration in statement.Declarations)
-            {
-                foreach (var local in declaration.Variables)
-                {
-                    output[local] = GetAbstractValue(declaration.Initializer);
-                }
             }
         }
 
@@ -112,11 +97,11 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
             if (statement.Expression is ISimpleAssignmentExpression assignment &&
                 assignment.Target is ILocalReferenceExpression localReference)
             {
-                output[localReference.Local] = GetAbstractValue(assignment.Value);
+                output[localReference.Local] = GetAbstractValue(assignment.Value, output);
             }
         }
 
-        private ZeroAbstractValue GetAbstractValue(IOperation value)
+        private ZeroAbstractValue GetAbstractValue(IOperation value, ZeroAnalysisAbstractValue output)
         {
             var result = ZeroAbstractValue.MaybeZero;
 
@@ -131,6 +116,10 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
                 {
                     result = ZeroAbstractValue.NotZero;
                 }
+            }
+            else if (value is ILocalReferenceExpression localReference)
+            {
+                output.TryGetValue(localReference.Local, out result);
             }
 
             return result;
