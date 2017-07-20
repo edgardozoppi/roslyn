@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 
@@ -99,54 +100,76 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
             }
         }
 
+        [DebuggerStepThrough]
         protected abstract BasicBlock Entry(ControlFlowGraph cfg);
 
+        [DebuggerStepThrough]
         protected abstract IEnumerable<BasicBlock> Predecessors(BasicBlock block);
 
+        [DebuggerStepThrough]
         protected abstract IEnumerable<BasicBlock> Successors(BasicBlock block);
 
+        [DebuggerStepThrough]
         protected abstract TAbstractValue Input(DataFlowAnalysisResult result);
 
+        [DebuggerStepThrough]
         protected abstract TAbstractValue Output(DataFlowAnalysisResult result);
 
+        [DebuggerStepThrough]
         protected abstract void Input(DataFlowAnalysisResult result, TAbstractValue value);
 
+        [DebuggerStepThrough]
         protected abstract void Output(DataFlowAnalysisResult result, TAbstractValue value);
 
+        [DebuggerStepThrough]
         protected abstract TAbstractValue Flow(BasicBlock block, TAbstractValue oldInput, TAbstractValue newInput);
     }
 
     internal abstract class ForwardDataFlowAnalysis<TAbstractValue> : DataFlowAnalysis<TAbstractValue>
     {
+        [DebuggerStepThrough]
         protected override BasicBlock Entry(ControlFlowGraph cfg) => cfg.Entry;
 
+        [DebuggerStepThrough]
         protected override IEnumerable<BasicBlock> Predecessors(BasicBlock block) => block.Predecessors;
 
+        [DebuggerStepThrough]
         protected override IEnumerable<BasicBlock> Successors(BasicBlock block) => block.Successors;
 
+        [DebuggerStepThrough]
         protected override TAbstractValue Input(DataFlowAnalysisResult result) => result.Input;
 
+        [DebuggerStepThrough]
         protected override TAbstractValue Output(DataFlowAnalysisResult result) => result.Output;
 
+        [DebuggerStepThrough]
         protected override void Input(DataFlowAnalysisResult result, TAbstractValue value) => result.Input = value;
 
+        [DebuggerStepThrough]
         protected override void Output(DataFlowAnalysisResult result, TAbstractValue value) => result.Output = value;
     }
 
     internal abstract class BackwardDataFlowAnalysis<TAbstractValue> : DataFlowAnalysis<TAbstractValue>
     {
+        [DebuggerStepThrough]
         protected override BasicBlock Entry(ControlFlowGraph cfg) => cfg.Exit;
 
+        [DebuggerStepThrough]
         protected override IEnumerable<BasicBlock> Predecessors(BasicBlock block) => block.Successors;
 
+        [DebuggerStepThrough]
         protected override IEnumerable<BasicBlock> Successors(BasicBlock block) => block.Predecessors;
 
+        [DebuggerStepThrough]
         protected override TAbstractValue Input(DataFlowAnalysisResult result) => result.Output;
 
+        [DebuggerStepThrough]
         protected override TAbstractValue Output(DataFlowAnalysisResult result) => result.Input;
 
+        [DebuggerStepThrough]
         protected override void Input(DataFlowAnalysisResult result, TAbstractValue value) => result.Output = value;
 
+        [DebuggerStepThrough]
         protected override void Output(DataFlowAnalysisResult result, TAbstractValue value) => result.Input = value;
     }
 }
