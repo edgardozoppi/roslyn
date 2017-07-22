@@ -39,5 +39,10 @@ namespace Microsoft.CodeAnalysis.Semantics.Dataflow
                     return false;
             }
         }
+
+        public static string ToTestDisplayString(this ISymbol symbol)
+        {
+            return symbol.ToDisplayString(SymbolDisplayFormat.TestFormat);
+        }
     }
 }
