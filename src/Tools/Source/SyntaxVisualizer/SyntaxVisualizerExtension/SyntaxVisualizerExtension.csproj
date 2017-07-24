@@ -59,16 +59,16 @@
       <Version>$(MicrosoftCodeAnalysisWorkspacesCommonVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.CoreUtility">
-      <Version>$(MicrosoftVisualStudioCoreUtilityFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioCoreUtilityVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Editor">
-      <Version>$(MicrosoftVisualStudioEditorFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioEditorVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.OLE.Interop">
       <Version>$(MicrosoftVisualStudioOLEInteropVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.14.0">
-      <Version>$(MicrosoftVisualStudioShell140FixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioShell140Version)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Shell.Interop">
       <Version>$(MicrosoftVisualStudioShellInteropVersion)</Version>
@@ -83,31 +83,31 @@
       <Version>$(MicrosoftVisualStudioShellInterop90Version)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Text.Data">
-      <Version>$(MicrosoftVisualStudioTextDataFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioTextDataVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Text.Logic">
-      <Version>$(MicrosoftVisualStudioTextLogicFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioTextLogicVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Text.UI">
-      <Version>$(MicrosoftVisualStudioTextUIFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioTextUIVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Text.UI.Wpf">
-      <Version>$(MicrosoftVisualStudioTextUIWpfFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioTextUIWpfVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.TextManager.Interop">
       <Version>$(MicrosoftVisualStudioTextManagerInteropVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Utilities">
-      <Version>$(MicrosoftVisualStudioUtilitiesFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioUtilitiesVersion)</Version>
     </PackageReference>
     <PackageReference Include="System.Collections.Immutable">
-      <Version>$(SystemCollectionsImmutableFixedVersion)</Version>
+      <Version>$(SystemCollectionsImmutableVersion)</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
-      <Version>$(SystemReflectionMetadataFixedVersion)</Version>
+      <Version>$(SystemReflectionMetadataVersion)</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.ComponentModelHost">
-      <Version>$(MicrosoftVisualStudioComponentModelHostFixedVersion)</Version>
+      <Version>$(MicrosoftVisualStudioComponentModelHostVersion)</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

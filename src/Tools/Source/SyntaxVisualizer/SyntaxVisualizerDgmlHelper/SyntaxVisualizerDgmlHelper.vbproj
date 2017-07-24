@@ -33,10 +33,10 @@
       <Version>$(MicrosoftCodeAnalysisCSharpVersion)</Version>
     </PackageReference>
     <PackageReference Include="System.Collections.Immutable">
-      <Version>$(SystemCollectionsImmutableFixedVersion)</Version>
+      <Version>$(SystemCollectionsImmutableVersion)</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection.Metadata">
-      <Version>$(SystemReflectionMetadataFixedVersion)</Version>
+      <Version>$(SystemReflectionMetadataVersion)</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
