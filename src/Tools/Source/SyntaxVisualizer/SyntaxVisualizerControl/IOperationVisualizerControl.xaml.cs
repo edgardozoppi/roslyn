@@ -1,13 +1,10 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Semantics;
 using Microsoft.CodeAnalysis.Text;
 
 namespace Roslyn.SyntaxVisualizer.Control
@@ -44,14 +41,8 @@ namespace Roslyn.SyntaxVisualizer.Control
         public SemanticModel SemanticModel { get; private set; }
         public bool IsLazy { get; private set; }
 
-        public event SyntaxNodeDelegate SyntaxNodeDirectedGraphRequested;
-        public event SyntaxNodeDelegate SyntaxNodeNavigationToSourceRequested;
-
-        public event SyntaxTokenDelegate SyntaxTokenDirectedGraphRequested;
-        public event SyntaxTokenDelegate SyntaxTokenNavigationToSourceRequested;
-
-        public event SyntaxTriviaDelegate SyntaxTriviaDirectedGraphRequested;
-        public event SyntaxTriviaDelegate SyntaxTriviaNavigationToSourceRequested;
+        public event DgmlCreationDelegate DirectedGraphRequested;
+        public event TreeNodeDelegate NavigationToSourceRequested;
         #endregion
 
         #region Public Methods
@@ -331,7 +322,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             {
                 Tag = tag,
                 IsExpanded = false,
-                Foreground = Brushes.OrangeRed,
+                Foreground = Brushes.Sienna,
                 Background = syntax.ContainsDiagnostics ? Brushes.Pink : Brushes.White,
                 Header = $"{operation.Kind} {syntax.Span.ToString()}"
             };
@@ -347,7 +338,7 @@ namespace Roslyn.SyntaxVisualizer.Control
                 item.ToolTip = item.ToolTip.ToString().Trim();
             }
 
-            var children = new ChildrenWalker().GetChildren(operation);
+            var children = operation.GetChildren();
 
             item.Selected += new RoutedEventHandler((sender, e) =>
             {
@@ -363,9 +354,9 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 item.IsExpanded = true;
 
-                if (!_isNavigatingFromSourceToTree && SyntaxNodeNavigationToSourceRequested != null)
+                if (!_isNavigatingFromSourceToTree && NavigationToSourceRequested != null)
                 {
-                    SyntaxNodeNavigationToSourceRequested(syntax);
+                    NavigationToSourceRequested(new TreeNode(syntax));
                 }
 
                 _isNavigatingFromTreeToSource = false;
@@ -411,7 +402,6 @@ namespace Roslyn.SyntaxVisualizer.Control
                     }
                 }
             }
-
         }
 
         private void AddSyntax(TreeViewItem parentItem, SyntaxNode node)
@@ -461,9 +451,9 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 item.IsExpanded = true;
 
-                if (!_isNavigatingFromSourceToTree && SyntaxNodeNavigationToSourceRequested != null)
+                if (!_isNavigatingFromSourceToTree && NavigationToSourceRequested != null)
                 {
-                    SyntaxNodeNavigationToSourceRequested(node);
+                    NavigationToSourceRequested(new TreeNode(node));
                 }
 
                 _isNavigatingFromTreeToSource = false;
@@ -569,7 +559,14 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         private void TreeView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            e.Handled = true;
+            if (DirectedGraphRequested != null)
+            {
+                directedSyntaxGraphMenuItem.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                e.Handled = true;
+            }
         }
 
         private void LegendButton_Click(object sender, RoutedEventArgs e)
@@ -577,37 +574,22 @@ namespace Roslyn.SyntaxVisualizer.Control
             legendPopup.IsOpen = true;
         }
 
-        private void SyntaxMenuItem_Click(object sender, RoutedEventArgs e)
+        private void DirectedSyntaxGraphMenuItem_Click(object sender, RoutedEventArgs e)
         {
-
+            if (_currentSelection != null)
+            {
+                var currentTag = (IOperationTag)_currentSelection.Tag;
+                if (currentTag.Category == NodeCategory.SyntaxNode)
+                {
+                    DirectedGraphRequested(new TreeNode(currentTag.SyntaxNode), true);
+                }
+                else if (currentTag.Category == NodeCategory.IOperationNode)
+                {
+                    DirectedGraphRequested(new TreeNode(currentTag.Operation), true);
+                }
+            }
         }
 
         #endregion
-    }
-
-    internal class ChildrenWalker : OperationWalker
-    {
-        private bool _recursed = false;
-        private readonly IList<IOperation> _children = new List<IOperation>();
-
-        public ImmutableArray<IOperation> GetChildren(IOperation operation)
-        {
-            _recursed = false;
-            Visit(operation);
-            return _children.ToImmutableArray();
-        }
-
-        public override void Visit(IOperation operation)
-        {
-            if (!_recursed)
-            {
-                _recursed = true;
-                base.Visit(operation);
-            }
-            else if (operation != null)
-            {
-                _children.Add(operation);
-            }
-        }
     }
 }

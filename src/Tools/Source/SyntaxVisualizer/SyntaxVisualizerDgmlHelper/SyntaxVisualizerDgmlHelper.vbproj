@@ -38,8 +38,13 @@
     <PackageReference Include="System.Reflection.Metadata">
       <Version>$(SystemReflectionMetadataVersion)</Version>
     </PackageReference>
+    <ProjectReference Include="..\SyntaxVisualizerControl\SyntaxVisualizerControl.csproj">
+      <Project>{afe45e23-e7ee-48c5-8143-ebe2ff67070f}</Project>
+      <Name>SyntaxVisualizerControl</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IOperationDgmlHelper.vb" />
     <Compile Include="ObjectInfoHelper.vb" />
     <Compile Include="SyntaxDgmlHelper.vb" />
     <Compile Include="SyntaxKindHelper.vb" />

@@ -53,6 +53,16 @@ Friend Module ObjectInfoHelper
                              Select GetPropertyInfo(p, trivia)).ToList()
         Return New ObjectInfo(type.Name, propertyInfos)
     End Function
+
+    Friend Function GetObjectInfo(operation As IOperation) As ObjectInfo
+        Dim type = operation.GetType()
+
+        Dim properties = type.GetProperties(System.Reflection.BindingFlags.Instance Or
+                                            System.Reflection.BindingFlags.Public)
+        Dim propertyInfos = (From p In properties Where IsSimpleProperty(p)
+                             Select GetPropertyInfo(p, operation)).ToList()
+        Return New ObjectInfo(type.Name, propertyInfos)
+    End Function
 #End Region
 
 #Region "GetPropertyInfo"
@@ -83,6 +93,12 @@ Friend Module ObjectInfoHelper
                                      node As SyntaxNode) As ObjectInfo.PropertyInfo
         Return New ObjectInfo.PropertyInfo(prop.Name, prop.PropertyType,
                                            prop.GetValue(node, Nothing))
+    End Function
+
+    Private Function GetPropertyInfo(prop As System.Reflection.PropertyInfo,
+                                     operation As IOperation) As ObjectInfo.PropertyInfo
+        Return New ObjectInfo.PropertyInfo(prop.Name, prop.PropertyType,
+                                           prop.GetValue(operation, Nothing))
     End Function
 
     'Only called if IsSimpleProperty returns true.

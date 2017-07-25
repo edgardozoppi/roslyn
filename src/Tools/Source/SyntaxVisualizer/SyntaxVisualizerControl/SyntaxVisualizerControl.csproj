@@ -48,6 +48,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TreeNode.cs" />
     <Page Include="IOperationVisualizerControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -56,6 +57,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="ChildrenWalker.cs" />
     <Compile Include="IOperationVisualizerControl.xaml.cs">
       <DependentUpon>IOperationVisualizerControl.xaml</DependentUpon>
     </Compile>

@@ -47,14 +47,8 @@ namespace Roslyn.SyntaxVisualizer.Control
         public SemanticModel SemanticModel { get; private set; }
         public bool IsLazy { get; private set; }
 
-        public event SyntaxNodeDelegate SyntaxNodeDirectedGraphRequested;
-        public event SyntaxNodeDelegate SyntaxNodeNavigationToSourceRequested;
-
-        public event SyntaxTokenDelegate SyntaxTokenDirectedGraphRequested;
-        public event SyntaxTokenDelegate SyntaxTokenNavigationToSourceRequested;
-
-        public event SyntaxTriviaDelegate SyntaxTriviaDirectedGraphRequested;
-        public event SyntaxTriviaDelegate SyntaxTriviaNavigationToSourceRequested;
+        public event DgmlCreationDelegate DirectedGraphRequested;
+        public event TreeNodeDelegate NavigationToSourceRequested;
         #endregion
 
         #region Public Methods
@@ -363,9 +357,9 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 item.IsExpanded = true;
 
-                if (!_isNavigatingFromSourceToTree && SyntaxNodeNavigationToSourceRequested != null)
+                if (!_isNavigatingFromSourceToTree && NavigationToSourceRequested != null)
                 {
-                    SyntaxNodeNavigationToSourceRequested(node);
+                    NavigationToSourceRequested(new TreeNode(node));
                 }
 
                 _isNavigatingFromTreeToSource = false;
@@ -460,9 +454,9 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 item.IsExpanded = true;
 
-                if (!_isNavigatingFromSourceToTree && SyntaxTokenNavigationToSourceRequested != null)
+                if (!_isNavigatingFromSourceToTree && NavigationToSourceRequested != null)
                 {
-                    SyntaxTokenNavigationToSourceRequested(token);
+                    NavigationToSourceRequested(new TreeNode(token));
                 }
 
                 _isNavigatingFromTreeToSource = false;
@@ -567,9 +561,9 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 item.IsExpanded = true;
 
-                if (!_isNavigatingFromSourceToTree && SyntaxTriviaNavigationToSourceRequested != null)
+                if (!_isNavigatingFromSourceToTree && NavigationToSourceRequested != null)
                 {
-                    SyntaxTriviaNavigationToSourceRequested(trivia);
+                    NavigationToSourceRequested(new TreeNode(trivia));
                 }
 
                 _isNavigatingFromTreeToSource = false;
@@ -675,10 +669,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         private void TreeView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            var directedSyntaxGraphEnabled =
-                (SyntaxNodeDirectedGraphRequested != null) &&
-                (SyntaxTokenDirectedGraphRequested != null) &&
-                (SyntaxTriviaDirectedGraphRequested != null);
+            var directedSyntaxGraphEnabled = DirectedGraphRequested != null;
 
             var symbolDetailsEnabled =
                 (SemanticModel != null) &&
@@ -706,18 +697,17 @@ namespace Roslyn.SyntaxVisualizer.Control
             if (_currentSelection != null)
             {
                 var currentTag = (SyntaxTag)_currentSelection.Tag;
-
-                if (currentTag.Category == NodeCategory.SyntaxNode && SyntaxNodeDirectedGraphRequested != null)
+                if (currentTag.Category == NodeCategory.SyntaxNode)
                 {
-                    SyntaxNodeDirectedGraphRequested(currentTag.SyntaxNode);
+                    DirectedGraphRequested(new TreeNode(currentTag.SyntaxNode), false);
                 }
-                else if (currentTag.Category == NodeCategory.SyntaxToken && SyntaxTokenDirectedGraphRequested != null)
+                else if (currentTag.Category == NodeCategory.SyntaxToken)
                 {
-                    SyntaxTokenDirectedGraphRequested(currentTag.SyntaxToken);
+                    DirectedGraphRequested(new TreeNode(currentTag.SyntaxToken), false);
                 }
-                else if (currentTag.Category == NodeCategory.SyntaxTrivia && SyntaxTriviaDirectedGraphRequested != null)
+                else if (currentTag.Category == NodeCategory.SyntaxTrivia)
                 {
-                    SyntaxTriviaDirectedGraphRequested(currentTag.SyntaxTrivia);
+                    DirectedGraphRequested(new TreeNode(currentTag.SyntaxTrivia), false);
                 }
             }
         }

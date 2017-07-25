@@ -56,15 +56,11 @@ namespace Roslyn.SyntaxVisualizer.Extension
                 shellService.IsPackageInstalled(GuidList.GuidProgressionPkg, out canDisplayDirectedSyntaxGraph);
                 if (Convert.ToBoolean(canDisplayDirectedSyntaxGraph))
                 {
-                    visualizer.SyntaxNodeDirectedGraphRequested += DisplaySyntaxNodeDgml;
-                    visualizer.SyntaxTokenDirectedGraphRequested += DisplaySyntaxTokenDgml;
-                    visualizer.SyntaxTriviaDirectedGraphRequested += DisplaySyntaxTriviaDgml;
+                    visualizer.DirectedGraphRequested += DisplayDgml;
                 }
             }
 
-            visualizer.SyntaxNodeNavigationToSourceRequested += node => NavigateToSource(node.Span);
-            visualizer.SyntaxTokenNavigationToSourceRequested += token => NavigateToSource(token.Span);
-            visualizer.SyntaxTriviaNavigationToSourceRequested += trivia => NavigateToSource(trivia.Span);
+            visualizer.NavigationToSourceRequested += NavigateToSource;
         }
 
         internal void Clear()
@@ -250,8 +246,27 @@ namespace Roslyn.SyntaxVisualizer.Extension
         }
 
         // When user clicks on a particular item in the treeview select the corresponding text in the editor.
-        private void NavigateToSource(TextSpan span)
+        private void NavigateToSource(TreeNode node)
         {
+            TextSpan span;
+            switch (node.Category)
+            {
+                case NodeCategory.SyntaxNode:
+                    span = node.SyntaxNode.Span;
+                    break;
+                case NodeCategory.SyntaxToken:
+                    span = node.SyntaxToken.Span;
+                    break;
+                case NodeCategory.SyntaxTrivia:
+                    span = node.SyntaxTrivia.Span;
+                    break;
+                case NodeCategory.IOperationNode:
+                    span = node.Operation.Syntax.Span;
+                    break;
+                default:
+                    throw new InvalidOperationException($"Cannot navigate to unknown tree node element {node}");
+            }
+
             if (IsVisible && activeWpfTextView != null)
             {
                 var snapShotSpan = span.ToSnapshotSpan(activeWpfTextView.TextBuffer.CurrentSnapshot);
@@ -392,7 +407,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
             }
         }
 
-        private void DisplayDgml(XElement dgml)
+        private void DisplayDgml(XElement dgml, bool ioperationGraph)
         {
             uint docItemId, cookie;
             IVsUIHierarchy docUIHierarchy;
@@ -403,10 +418,11 @@ namespace Roslyn.SyntaxVisualizer.Extension
 
             if (string.IsNullOrWhiteSpace(dgmlFilePath))
             {
+                var fileName = ioperationGraph ? "IOperation" : "Syntax";
                 var folderPath = Path.Combine(Path.GetTempPath(),
-                    "Syntax-" + System.Diagnostics.Process.GetCurrentProcess().Id.ToString());
+                    $"{fileName}-{System.Diagnostics.Process.GetCurrentProcess().Id.ToString()}");
                 Directory.CreateDirectory(folderPath);
-                dgmlFilePath = Path.Combine(folderPath, "Syntax.dgml");
+                dgmlFilePath = Path.Combine(folderPath, $"{fileName}.dgml");
             }
 
             // Check whether the file is already open in the 'design' view.
@@ -475,7 +491,28 @@ namespace Roslyn.SyntaxVisualizer.Extension
             }
         }
 
-        private void DisplaySyntaxNodeDgml(SyntaxNode node)
+        private void DisplayDgml(TreeNode node, bool ioperationGraph)
+        {
+            switch (node.Category)
+            {
+                case NodeCategory.SyntaxNode:
+                    DisplaySyntaxNodeDgml(node.SyntaxNode, ioperationGraph);
+                    break;
+                case NodeCategory.SyntaxToken:
+                    DisplaySyntaxTokenDgml(node.SyntaxToken);
+                    break;
+                case NodeCategory.SyntaxTrivia:
+                    DisplaySyntaxTriviaDgml(node.SyntaxTrivia);
+                    break;
+                case NodeCategory.IOperationNode:
+                    DisplayIOperationDgml(node.Operation);
+                    break;
+                default:
+                    throw new InvalidOperationException($"Invalid node category for Dgml display {node.Category}");
+            }
+        }
+
+        private void DisplaySyntaxNodeDgml(SyntaxNode node, bool ioperationGraph)
         {
             if (activeWpfTextView != null)
             {
@@ -485,10 +522,19 @@ namespace Roslyn.SyntaxVisualizer.Extension
 
                 if (contentType.IsOfType(CSharpContentType) || contentType.IsOfType(VisualBasicContentType))
                 {
-                    dgml = node.ToDgml();
+                    if (ioperationGraph)
+                    {
+                        var document = snapshot.GetOpenDocumentInCurrentContextWithChanges();
+                        var semanticModel = document.GetSemanticModelAsync().Result;
+                        dgml = node.ToIOperationDgml(semanticModel);
+                    }
+                    else
+                    {
+                        dgml = node.ToDgml();
+                    }
                 }
 
-                DisplayDgml(dgml);
+                DisplayDgml(dgml, ioperationGraph);
             }
         }
 
@@ -505,7 +551,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
                     dgml = token.ToDgml();
                 }
 
-                DisplayDgml(dgml);
+                DisplayDgml(dgml, false);
             }
         }
 
@@ -522,7 +568,24 @@ namespace Roslyn.SyntaxVisualizer.Extension
                     dgml = trivia.ToDgml();
                 }
 
-                DisplayDgml(dgml);
+                DisplayDgml(dgml, false);
+            }
+        }
+
+        private void DisplayIOperationDgml(IOperation operation)
+        {
+            if (activeWpfTextView != null)
+            {
+                var snapshot = activeWpfTextView.TextBuffer.CurrentSnapshot;
+                var contentType = snapshot.ContentType;
+                XElement dgml = null;
+
+                if (contentType.IsOfType(CSharpContentType) || contentType.IsOfType(VisualBasicContentType))
+                {
+                    dgml = operation.ToIOperationDgml();
+                }
+
+                DisplayDgml(dgml, true);
             }
         }
 
