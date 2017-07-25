@@ -112,8 +112,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HelperExtensionMethods.cs" />
-    <Compile Include="SyntaxVisualizerContainer.xaml.cs">
-      <DependentUpon>SyntaxVisualizerContainer.xaml</DependentUpon>
+    <Compile Include="IOperationVisualizerToolWindow.cs" />
+    <Compile Include="VisualizerToolWindow.cs" />
+    <Compile Include="VisualizerContainer.xaml.cs">
+      <DependentUpon>VisualizerContainer.xaml</DependentUpon>
     </Compile>
     <Compile Include="SyntaxVisualizerToolWindow.cs" />
     <Compile Include="Guids.cs" />
@@ -167,7 +169,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="SyntaxVisualizerContainer.xaml">
+    <Page Include="VisualizerContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

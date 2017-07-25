@@ -12,17 +12,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Roslyn.SyntaxVisualizer.Control
 {
-    public enum IOperationCategory
-    {
-        None,
-        IOperation,
-        Syntax
-    }
-
     /// <summary>
     /// Interaction logic for IOperationVisualizerControl.xaml
     /// </summary>
-    public partial class IOperationVisualizerControl : UserControl
+    public partial class IOperationVisualizerControl : UserControl, IVisualizerControl
     {
         // Instances of this class are stored in the Tag field of each item in the treeview.
         private class IOperationTag
@@ -35,7 +28,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             internal SyntaxNode SyntaxNode { get; set; }
             internal SyntaxToken SyntaxToken { get; set; }
             internal SyntaxTrivia SyntaxTrivia { get; set; }
-            internal IOperationCategory Category { get; set; }
+            internal NodeCategory Category { get; set; }
         }
 
         #region Private State
@@ -51,15 +44,12 @@ namespace Roslyn.SyntaxVisualizer.Control
         public SemanticModel SemanticModel { get; private set; }
         public bool IsLazy { get; private set; }
 
-        public delegate void SyntaxNodeDelegate(SyntaxNode node);
         public event SyntaxNodeDelegate SyntaxNodeDirectedGraphRequested;
         public event SyntaxNodeDelegate SyntaxNodeNavigationToSourceRequested;
 
-        public delegate void SyntaxTokenDelegate(SyntaxToken token);
         public event SyntaxTokenDelegate SyntaxTokenDirectedGraphRequested;
         public event SyntaxTokenDelegate SyntaxTokenNavigationToSourceRequested;
 
-        public delegate void SyntaxTriviaDelegate(SyntaxTrivia trivia);
         public event SyntaxTriviaDelegate SyntaxTriviaDirectedGraphRequested;
         public event SyntaxTriviaDelegate SyntaxTriviaNavigationToSourceRequested;
         #endregion
@@ -95,7 +85,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         // the children for any given item are only populated when the item is selected. If lazy is
         // false then the entire tree is populated at once (and this can result in bad performance when
         // displaying large trees).
-        public void DisplayIOperationTree(SyntaxTree tree, SemanticModel model, bool lazy = true)
+        public void DisplayTree(SyntaxTree tree, SemanticModel model, bool lazy = true)
         {
             if (tree != null)
             {
@@ -125,7 +115,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose position best matches the supplied position.
         public bool NavigateToBestMatch(int position, string kind = null,
-            IOperationCategory category = IOperationCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             TreeViewItem match = null;
@@ -157,7 +147,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         public bool NavigateToBestMatch(int start, int length, string kind = null,
-            IOperationCategory category = IOperationCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             return NavigateToBestMatch(new TextSpan(start, length), kind, category, highlightMatch, highlightLegendDescription);
@@ -165,7 +155,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         public bool NavigateToBestMatch(TextSpan span, string kind = null,
-            IOperationCategory category = IOperationCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             TreeViewItem match = null;
@@ -235,7 +225,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose position best matches the supplied position.
         private TreeViewItem NavigateToBestMatch(TreeViewItem current, int position, string kind = null,
-            IOperationCategory category = IOperationCategory.None)
+            NodeCategory category = NodeCategory.None)
         {
             TreeViewItem match = null;
 
@@ -256,7 +246,7 @@ namespace Roslyn.SyntaxVisualizer.Control
                     }
 
                     if (match == null && (kind == null || currentTag.Kind == kind) &&
-                       (category == IOperationCategory.None || category == currentTag.Category))
+                       (category == NodeCategory.None || category == currentTag.Category))
                     {
                         match = current;
                     }
@@ -268,7 +258,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         private TreeViewItem NavigateToBestMatch(TreeViewItem current, TextSpan span, string kind = null,
-            IOperationCategory category = IOperationCategory.None)
+            NodeCategory category = NodeCategory.None)
         {
             TreeViewItem match = null;
 
@@ -296,7 +286,7 @@ namespace Roslyn.SyntaxVisualizer.Control
                         }
 
                         if (match == null && (kind == null || currentTag.Kind == kind) &&
-                           (category == IOperationCategory.None || category == currentTag.Category))
+                           (category == NodeCategory.None || category == currentTag.Category))
                         {
                             match = current;
                         }
@@ -331,7 +321,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             var tag = new IOperationTag()
             {
                 Operation = operation,
-                Category = IOperationCategory.Syntax,
+                Category = NodeCategory.IOperationNode,
                 Span = syntax.Span,
                 FullSpan = syntax.FullSpan,
                 ParentItem = parentItem
@@ -430,7 +420,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             var tag = new IOperationTag()
             {
                 SyntaxNode = node,
-                Category = IOperationCategory.Syntax,
+                Category = NodeCategory.SyntaxNode,
                 Span = node.Span,
                 FullSpan = node.FullSpan,
                 Kind = kind,

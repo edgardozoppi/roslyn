@@ -59,6 +59,7 @@
     <Compile Include="IOperationVisualizerControl.xaml.cs">
       <DependentUpon>IOperationVisualizerControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IVisualizerControl.cs" />
     <Compile Include="SyntaxKindHelper.cs" />
     <Compile Include="SyntaxVisualizerControl.xaml.cs">
       <DependentUpon>SyntaxVisualizerControl.xaml</DependentUpon>

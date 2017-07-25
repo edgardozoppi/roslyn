@@ -13,14 +13,15 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Text.Editor;
 using Roslyn.SyntaxVisualizer.DgmlHelper;
+using Roslyn.SyntaxVisualizer.Control;
 
 namespace Roslyn.SyntaxVisualizer.Extension
 {
-    // Control that hosts SyntaxVisualizerControl inside a Visual Studio ToolWindow. This control implements all the
+    // Control that hosts a IVisualizerControl inside a Visual Studio ToolWindow. This control implements all the
     // logic necessary for interaction with Visual Studio's code documents and directed graph documents.
-    internal partial class SyntaxVisualizerContainer : UserControl, IVsRunningDocTableEvents, IVsSolutionEvents, IDisposable
+    internal partial class VisualizerContainer : UserControl, IVsRunningDocTableEvents, IVsSolutionEvents, IDisposable
     {
-        private SyntaxVisualizerToolWindow parent;
+        private VisualizerToolWindow parent;
         private IWpfTextView activeWpfTextView;
         private SyntaxTree activeSyntaxTree;
         private DispatcherTimer typingTimer;
@@ -29,12 +30,21 @@ namespace Roslyn.SyntaxVisualizer.Extension
         private const string VisualBasicContentType = "Basic";
         private readonly TimeSpan typingTimerTimeout = TimeSpan.FromMilliseconds(300);
 
-        internal SyntaxVisualizerContainer(SyntaxVisualizerToolWindow parent)
+        private IVisualizerControl visualizer;
+
+        internal VisualizerContainer(VisualizerToolWindow parent, IVisualizerControl visualizer)
         {
             InitializeComponent();
 
             this.parent = parent;
+            this.visualizer = visualizer;
+            this.Content = visualizer;
 
+            Initialize();
+        }
+
+        private void Initialize()
+        {
             InitializeRunningDocumentTable();
 
             var shellService = GetService<IVsShell, SVsShell>(GlobalServiceProvider);
@@ -46,15 +56,15 @@ namespace Roslyn.SyntaxVisualizer.Extension
                 shellService.IsPackageInstalled(GuidList.GuidProgressionPkg, out canDisplayDirectedSyntaxGraph);
                 if (Convert.ToBoolean(canDisplayDirectedSyntaxGraph))
                 {
-                    syntaxVisualizer.SyntaxNodeDirectedGraphRequested += DisplaySyntaxNodeDgml;
-                    syntaxVisualizer.SyntaxTokenDirectedGraphRequested += DisplaySyntaxTokenDgml;
-                    syntaxVisualizer.SyntaxTriviaDirectedGraphRequested += DisplaySyntaxTriviaDgml;
+                    visualizer.SyntaxNodeDirectedGraphRequested += DisplaySyntaxNodeDgml;
+                    visualizer.SyntaxTokenDirectedGraphRequested += DisplaySyntaxTokenDgml;
+                    visualizer.SyntaxTriviaDirectedGraphRequested += DisplaySyntaxTriviaDgml;
                 }
             }
 
-            syntaxVisualizer.SyntaxNodeNavigationToSourceRequested += node => NavigateToSource(node.Span);
-            syntaxVisualizer.SyntaxTokenNavigationToSourceRequested += token => NavigateToSource(token.Span);
-            syntaxVisualizer.SyntaxTriviaNavigationToSourceRequested += trivia => NavigateToSource(trivia.Span);
+            visualizer.SyntaxNodeNavigationToSourceRequested += node => NavigateToSource(node.Span);
+            visualizer.SyntaxTokenNavigationToSourceRequested += token => NavigateToSource(token.Span);
+            visualizer.SyntaxTriviaNavigationToSourceRequested += trivia => NavigateToSource(trivia.Span);
         }
 
         internal void Clear()
@@ -75,7 +85,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
             }
 
             activeSyntaxTree = null;
-            syntaxVisualizer.Clear();
+            visualizer.Clear();
         }
 
         #region Helpers - GetService
@@ -220,7 +230,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
                         // Display the SyntaxTree.
                         if (contentType.IsOfType(VisualBasicContentType) || contentType.IsOfType(CSharpContentType))
                         {
-                            syntaxVisualizer.DisplaySyntaxTree(activeSyntaxTree, activeSemanticModel);
+                            visualizer.DisplayTree(activeSyntaxTree, activeSemanticModel);
                         }
 
                         NavigateFromSource();
@@ -235,7 +245,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
             if (IsVisible && activeWpfTextView != null)
             {
                 var span = activeWpfTextView.Selection.StreamSelectionSpan.SnapshotSpan.Span;
-                syntaxVisualizer.NavigateToBestMatch(span.Start, span.Length);
+                visualizer.NavigateToBestMatch(span.Start, span.Length);
             }
         }
 

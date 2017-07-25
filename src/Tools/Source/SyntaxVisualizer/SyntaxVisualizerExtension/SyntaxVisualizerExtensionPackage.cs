@@ -22,6 +22,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)] // This attribute is used to register the information needed to show this package in the Help / About dialog of Visual Studio.
     [ProvideMenuResource("Menus.ctmenu", 1)] // This attribute is needed to let the shell know that this package exposes some menus.
     [ProvideToolWindow(typeof(SyntaxVisualizerToolWindow))] // This attribute registers a tool window exposed by this package.
+    [ProvideToolWindow(typeof(IOperationVisualizerToolWindow))] // This attribute registers a tool window exposed by this package.
     [Guid(GuidList.GuidSyntaxVisualizerExtensionPkgString)]
     public sealed class SyntaxVisualizerExtensionPackage : Package
     {
@@ -42,12 +43,12 @@ namespace Roslyn.SyntaxVisualizer.Extension
         /// tool window. See the Initialize method to see how the menu item is associated to 
         /// this function using the OleMenuCommandService service and the MenuCommand class.
         /// </summary>
-        private void ShowToolWindow(object sender, EventArgs e)
+        private void ShowToolWindow(Type toolWindowType)
         {
             // Get the instance number 0 of this tool window. This window is single instance so this instance
             // is actually the only one. The last flag is set to true so that if the tool window does not exist
             // it will be created.
-            ToolWindowPane window = this.FindToolWindow(typeof(SyntaxVisualizerToolWindow), 0, true);
+            ToolWindowPane window = this.FindToolWindow(toolWindowType, 0, true);
             if ((null == window) || (null == window.Frame))
             {
                 throw new NotSupportedException(Resources.CanNotCreateWindow);
@@ -55,6 +56,16 @@ namespace Roslyn.SyntaxVisualizer.Extension
 
             IVsWindowFrame windowFrame = (IVsWindowFrame)window.Frame;
             Microsoft.VisualStudio.ErrorHandler.ThrowOnFailure(windowFrame.Show());
+        }
+
+        private void ShowSyntaxVisualizerToolWindow(object sender, EventArgs e)
+        {
+            ShowToolWindow(typeof(SyntaxVisualizerToolWindow));
+        }
+
+        private void ShowIOperationVisualizerToolWindow(object sender, EventArgs e)
+        {
+            ShowToolWindow(typeof(IOperationVisualizerToolWindow));
         }
 
         // Overridden Package Implementation.
@@ -74,9 +85,13 @@ namespace Roslyn.SyntaxVisualizer.Extension
             OleMenuCommandService mcs = GetService(typeof(IMenuCommandService)) as OleMenuCommandService;
             if (null != mcs)
             {
-                // Create the command for the tool window.
+                // Create the commands for the tool windows.
                 CommandID toolwndCommandID = new CommandID(GuidList.GuidSyntaxVisualizerExtensionCmdSet, (int)PkgCmdIDList.CmdIDRoslynSyntaxVisualizer);
-                MenuCommand menuToolWin = new MenuCommand(ShowToolWindow, toolwndCommandID);
+                MenuCommand menuToolWin = new MenuCommand(ShowSyntaxVisualizerToolWindow, toolwndCommandID);
+                mcs.AddCommand(menuToolWin);
+
+                toolwndCommandID = new CommandID(GuidList.GuidIOperationVisualizerExtensionCmdSet, (int)PkgCmdIDList.CmdIDRoslynIOperationVisualizer);
+                menuToolWin = new MenuCommand(ShowIOperationVisualizerToolWindow, toolwndCommandID);
                 mcs.AddCommand(menuToolWin);
             }
         }

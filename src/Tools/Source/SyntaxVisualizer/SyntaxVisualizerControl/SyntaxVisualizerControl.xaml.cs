@@ -9,16 +9,17 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace Roslyn.SyntaxVisualizer.Control
 {
-    public enum SyntaxCategory
+    public enum NodeCategory
     {
         None,
         SyntaxNode,
         SyntaxToken,
-        SyntaxTrivia
+        SyntaxTrivia,
+        IOperationNode
     }
 
     // A control for visually displaying the contents of a SyntaxTree.
-    public partial class SyntaxVisualizerControl : UserControl
+    public partial class SyntaxVisualizerControl : UserControl, IVisualizerControl
     {
         // Instances of this class are stored in the Tag field of each item in the treeview.
         private class SyntaxTag
@@ -30,7 +31,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             internal SyntaxNode SyntaxNode { get; set; }
             internal SyntaxToken SyntaxToken { get; set; }
             internal SyntaxTrivia SyntaxTrivia { get; set; }
-            internal SyntaxCategory Category { get; set; }
+            internal NodeCategory Category { get; set; }
         }
 
         #region Private State
@@ -46,15 +47,12 @@ namespace Roslyn.SyntaxVisualizer.Control
         public SemanticModel SemanticModel { get; private set; }
         public bool IsLazy { get; private set; }
 
-        public delegate void SyntaxNodeDelegate(SyntaxNode node);
         public event SyntaxNodeDelegate SyntaxNodeDirectedGraphRequested;
         public event SyntaxNodeDelegate SyntaxNodeNavigationToSourceRequested;
 
-        public delegate void SyntaxTokenDelegate(SyntaxToken token);
         public event SyntaxTokenDelegate SyntaxTokenDirectedGraphRequested;
         public event SyntaxTokenDelegate SyntaxTokenNavigationToSourceRequested;
 
-        public delegate void SyntaxTriviaDelegate(SyntaxTrivia trivia);
         public event SyntaxTriviaDelegate SyntaxTriviaDirectedGraphRequested;
         public event SyntaxTriviaDelegate SyntaxTriviaNavigationToSourceRequested;
         #endregion
@@ -90,7 +88,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         // the children for any given item are only populated when the item is selected. If lazy is
         // false then the entire tree is populated at once (and this can result in bad performance when
         // displaying large trees).
-        public void DisplaySyntaxTree(SyntaxTree tree, SemanticModel model = null, bool lazy = true)
+        public void DisplayTree(SyntaxTree tree, SemanticModel model = null, bool lazy = true)
         {
             if (tree != null)
             {
@@ -120,7 +118,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose position best matches the supplied position.
         public bool NavigateToBestMatch(int position, string kind = null,
-            SyntaxCategory category = SyntaxCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             TreeViewItem match = null;
@@ -152,7 +150,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         public bool NavigateToBestMatch(int start, int length, string kind = null,
-            SyntaxCategory category = SyntaxCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             return NavigateToBestMatch(new TextSpan(start, length), kind, category, highlightMatch, highlightLegendDescription);
@@ -160,7 +158,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         public bool NavigateToBestMatch(TextSpan span, string kind = null,
-            SyntaxCategory category = SyntaxCategory.None,
+            NodeCategory category = NodeCategory.None,
             bool highlightMatch = false, string highlightLegendDescription = null)
         {
             TreeViewItem match = null;
@@ -230,7 +228,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose position best matches the supplied position.
         private TreeViewItem NavigateToBestMatch(TreeViewItem current, int position, string kind = null,
-            SyntaxCategory category = SyntaxCategory.None)
+            NodeCategory category = NodeCategory.None)
         {
             TreeViewItem match = null;
 
@@ -251,7 +249,7 @@ namespace Roslyn.SyntaxVisualizer.Control
                     }
 
                     if (match == null && (kind == null || currentTag.Kind == kind) &&
-                       (category == SyntaxCategory.None || category == currentTag.Category))
+                       (category == NodeCategory.None || category == currentTag.Category))
                     {
                         match = current;
                     }
@@ -263,7 +261,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
         // Select the SyntaxNode / SyntaxToken / SyntaxTrivia whose span best matches the supplied span.
         private TreeViewItem NavigateToBestMatch(TreeViewItem current, TextSpan span, string kind = null,
-            SyntaxCategory category = SyntaxCategory.None)
+            NodeCategory category = NodeCategory.None)
         {
             TreeViewItem match = null;
 
@@ -291,7 +289,7 @@ namespace Roslyn.SyntaxVisualizer.Control
                         }
 
                         if (match == null && (kind == null || currentTag.Kind == kind) &&
-                           (category == SyntaxCategory.None || category == currentTag.Category))
+                           (category == NodeCategory.None || category == currentTag.Category))
                         {
                             match = current;
                         }
@@ -324,7 +322,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             var tag = new SyntaxTag()
             {
                 SyntaxNode = node,
-                Category = SyntaxCategory.SyntaxNode,
+                Category = NodeCategory.SyntaxNode,
                 Span = node.Span,
                 FullSpan = node.FullSpan,
                 Kind = kind,
@@ -421,7 +419,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             var tag = new SyntaxTag()
             {
                 SyntaxToken = token,
-                Category = SyntaxCategory.SyntaxToken,
+                Category = NodeCategory.SyntaxToken,
                 Span = token.Span,
                 FullSpan = token.FullSpan,
                 Kind = kind,
@@ -528,7 +526,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             var tag = new SyntaxTag()
             {
                 SyntaxTrivia = trivia,
-                Category = SyntaxCategory.SyntaxTrivia,
+                Category = NodeCategory.SyntaxTrivia,
                 Span = trivia.Span,
                 FullSpan = trivia.FullSpan,
                 Kind = kind,
@@ -684,7 +682,7 @@ namespace Roslyn.SyntaxVisualizer.Control
 
             var symbolDetailsEnabled =
                 (SemanticModel != null) &&
-                (((SyntaxTag)_currentSelection.Tag).Category == SyntaxCategory.SyntaxNode);
+                (((SyntaxTag)_currentSelection.Tag).Category == NodeCategory.SyntaxNode);
 
             if ((!directedSyntaxGraphEnabled) && (!symbolDetailsEnabled))
             {
@@ -709,15 +707,15 @@ namespace Roslyn.SyntaxVisualizer.Control
             {
                 var currentTag = (SyntaxTag)_currentSelection.Tag;
 
-                if (currentTag.Category == SyntaxCategory.SyntaxNode && SyntaxNodeDirectedGraphRequested != null)
+                if (currentTag.Category == NodeCategory.SyntaxNode && SyntaxNodeDirectedGraphRequested != null)
                 {
                     SyntaxNodeDirectedGraphRequested(currentTag.SyntaxNode);
                 }
-                else if (currentTag.Category == SyntaxCategory.SyntaxToken && SyntaxTokenDirectedGraphRequested != null)
+                else if (currentTag.Category == NodeCategory.SyntaxToken && SyntaxTokenDirectedGraphRequested != null)
                 {
                     SyntaxTokenDirectedGraphRequested(currentTag.SyntaxToken);
                 }
-                else if (currentTag.Category == SyntaxCategory.SyntaxTrivia && SyntaxTriviaDirectedGraphRequested != null)
+                else if (currentTag.Category == NodeCategory.SyntaxTrivia && SyntaxTriviaDirectedGraphRequested != null)
                 {
                     SyntaxTriviaDirectedGraphRequested(currentTag.SyntaxTrivia);
                 }
@@ -727,7 +725,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         private void SymbolDetailsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var currentTag = (SyntaxTag)_currentSelection.Tag;
-            if ((SemanticModel != null) && (currentTag.Category == SyntaxCategory.SyntaxNode))
+            if ((SemanticModel != null) && (currentTag.Category == NodeCategory.SyntaxNode))
             {
                 var symbol = SemanticModel.GetSymbolInfo(currentTag.SyntaxNode).Symbol;
                 if (symbol == null)
@@ -747,7 +745,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         private void TypeSymbolDetailsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var currentTag = (SyntaxTag)_currentSelection.Tag;
-            if ((SemanticModel != null) && (currentTag.Category == SyntaxCategory.SyntaxNode))
+            if ((SemanticModel != null) && (currentTag.Category == NodeCategory.SyntaxNode))
             {
                 var symbol = SemanticModel.GetTypeInfo(currentTag.SyntaxNode).Type;
                 DisplaySymbolInPropertyGrid(symbol);
@@ -757,7 +755,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         private void ConvertedTypeSymbolDetailsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var currentTag = (SyntaxTag)_currentSelection.Tag;
-            if ((SemanticModel != null) && (currentTag.Category == SyntaxCategory.SyntaxNode))
+            if ((SemanticModel != null) && (currentTag.Category == NodeCategory.SyntaxNode))
             {
                 var symbol = SemanticModel.GetTypeInfo(currentTag.SyntaxNode).ConvertedType;
                 DisplaySymbolInPropertyGrid(symbol);
@@ -767,7 +765,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         private void AliasSymbolDetailsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var currentTag = (SyntaxTag)_currentSelection.Tag;
-            if ((SemanticModel != null) && (currentTag.Category == SyntaxCategory.SyntaxNode))
+            if ((SemanticModel != null) && (currentTag.Category == NodeCategory.SyntaxNode))
             {
                 var symbol = SemanticModel.GetAliasInfo(currentTag.SyntaxNode);
                 DisplaySymbolInPropertyGrid(symbol);
@@ -777,7 +775,7 @@ namespace Roslyn.SyntaxVisualizer.Control
         private void ConstantValueDetailsMenuItem_Click(object sender, RoutedEventArgs e)
         {
             var currentTag = (SyntaxTag)_currentSelection.Tag;
-            if ((SemanticModel != null) && (currentTag.Category == SyntaxCategory.SyntaxNode))
+            if ((SemanticModel != null) && (currentTag.Category == NodeCategory.SyntaxNode))
             {
                 var value = SemanticModel.GetConstantValue(currentTag.SyntaxNode);
                 kindTextLabel.Visibility = Visibility.Hidden;
