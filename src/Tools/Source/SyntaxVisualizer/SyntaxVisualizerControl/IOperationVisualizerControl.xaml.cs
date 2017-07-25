@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft.  All Rights Reserved.  Licensed under the Apache License, Version 2.0.  See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Windows;
@@ -79,6 +80,7 @@ namespace Roslyn.SyntaxVisualizer.Control
             typeValueLabel.Content = string.Empty;
             kindValueLabel.Content = string.Empty;
             legendButton.Visibility = Visibility.Hidden;
+            disabledFeatureLabel.Visibility = Visibility.Collapsed;
         }
 
         // If lazy is true then treeview items are populated on-demand. In other words, when lazy is true
@@ -89,12 +91,29 @@ namespace Roslyn.SyntaxVisualizer.Control
         {
             if (tree != null)
             {
-                IsLazy = lazy;
-                SyntaxTree = tree;
-                SemanticModel = model;
-                AddSyntax(null, SyntaxTree.GetRoot());
-                legendButton.Visibility = Visibility.Visible;
+                var enabled = CheckIOperationFeatureFlag(tree);
+
+                if (enabled)
+                {
+                    IsLazy = lazy;
+                    SyntaxTree = tree;
+                    SemanticModel = model;
+                    AddSyntax(null, SyntaxTree.GetRoot());
+                    legendButton.Visibility = Visibility.Visible;
+                }
             }
+        }
+
+        private bool CheckIOperationFeatureFlag(SyntaxTree tree)
+        {
+            var enabled = tree.Options.Features.ContainsKey("IOperation");
+
+            if (!enabled)
+            {
+                disabledFeatureLabel.Visibility = Visibility.Visible;
+            }
+
+            return enabled;
         }
 
         // If lazy is true then treeview items are populated on-demand. In other words, when lazy is true
