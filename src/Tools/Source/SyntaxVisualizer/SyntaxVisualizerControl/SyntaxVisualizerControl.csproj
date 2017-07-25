@@ -48,10 +48,17 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="IOperationVisualizerControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="SyntaxVisualizerControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Compile Include="IOperationVisualizerControl.xaml.cs">
+      <DependentUpon>IOperationVisualizerControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="SyntaxKindHelper.cs" />
     <Compile Include="SyntaxVisualizerControl.xaml.cs">
       <DependentUpon>SyntaxVisualizerControl.xaml</DependentUpon>

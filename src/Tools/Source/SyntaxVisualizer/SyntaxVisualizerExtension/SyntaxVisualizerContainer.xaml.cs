@@ -220,7 +220,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
                         // Display the SyntaxTree.
                         if (contentType.IsOfType(VisualBasicContentType) || contentType.IsOfType(CSharpContentType))
                         {
-                            syntaxVisualizer.DisplaySyntaxTree(activeSyntaxTree, activeSemanticModel);
+                            syntaxVisualizer.DisplayIOperationTree(activeSyntaxTree, activeSemanticModel);
                         }
 
                         NavigateFromSource();
@@ -400,8 +400,8 @@ namespace Roslyn.SyntaxVisualizer.Extension
             }
 
             // Check whether the file is already open in the 'design' view.
-            // If the file is already open in the desired view then we will update the 
-            // contents of the file on disk with the new directed syntax graph and load 
+            // If the file is already open in the desired view then we will update the
+            // contents of the file on disk with the new directed syntax graph and load
             // this new graph into the already open view of the file.
             if (VsShellUtilities.IsDocumentOpen(
                 ServiceProvider.GlobalProvider, dgmlFilePath, GuidList.GuidVsDesignerViewKind,

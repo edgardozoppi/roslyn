@@ -15,6 +15,6 @@
              LostFocus="SyntaxVisualizerToolWindow_LostFocus"
              Unloaded="SyntaxVisualizerToolWindow_Unloaded">
     <Grid>
-        <s:SyntaxVisualizerControl Name="syntaxVisualizer"/>
+        <s:IOperationVisualizerControl Name="syntaxVisualizer"/>
     </Grid>
 </UserControl>
