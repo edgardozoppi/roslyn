@@ -56,6 +56,7 @@
                     </StackPanel>
                 </Button>
             </Grid>
+            <Label Name="disabledFeatureLabel" DockPanel.Dock="Top" Visibility="Collapsed">IOperation feature disabled</Label>
             <TreeView Name="treeView" SelectedItemChanged="TreeView_SelectedItemChanged" PreviewMouseRightButtonDown="TreeView_PreviewMouseRightButtonDown" ContextMenuOpening="TreeView_ContextMenuOpening" Padding="5" >
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="{x:Type TreeViewItem}">
