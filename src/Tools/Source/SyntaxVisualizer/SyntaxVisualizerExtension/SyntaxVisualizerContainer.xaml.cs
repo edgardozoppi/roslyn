@@ -220,7 +220,7 @@ namespace Roslyn.SyntaxVisualizer.Extension
                         // Display the SyntaxTree.
                         if (contentType.IsOfType(VisualBasicContentType) || contentType.IsOfType(CSharpContentType))
                         {
-                            syntaxVisualizer.DisplayIOperationTree(activeSyntaxTree, activeSemanticModel);
+                            syntaxVisualizer.DisplaySyntaxTree(activeSyntaxTree, activeSemanticModel);
                         }
 
                         NavigateFromSource();

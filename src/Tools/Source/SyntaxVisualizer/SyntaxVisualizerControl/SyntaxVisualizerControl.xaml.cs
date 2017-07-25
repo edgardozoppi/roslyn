@@ -77,8 +77,10 @@ namespace Roslyn.SyntaxVisualizer.Control
         {
             treeView.Items.Clear();
             _propertyGrid.SelectedObject = null;
-            typeTextLabel.Visibility = Visibility.Hidden;
-            kindTextLabel.Visibility = Visibility.Hidden;
+            typeTextLabel.Visibility = Visibility.Collapsed;
+            kindTextLabel.Visibility = Visibility.Collapsed;
+            typeValueLabel.Visibility = Visibility.Collapsed;
+            kindValueLabel.Visibility = Visibility.Collapsed;
             typeValueLabel.Content = string.Empty;
             kindValueLabel.Content = string.Empty;
             legendButton.Visibility = Visibility.Hidden;
@@ -355,6 +357,8 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 typeTextLabel.Visibility = Visibility.Visible;
                 kindTextLabel.Visibility = Visibility.Visible;
+                typeValueLabel.Visibility = Visibility.Visible;
+                kindValueLabel.Visibility = Visibility.Visible;
                 typeValueLabel.Content = node.GetType().Name;
                 kindValueLabel.Content = kind;
                 _propertyGrid.SelectedObject = node;
@@ -450,6 +454,8 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 typeTextLabel.Visibility = Visibility.Visible;
                 kindTextLabel.Visibility = Visibility.Visible;
+                typeValueLabel.Visibility = Visibility.Visible;
+                kindValueLabel.Visibility = Visibility.Visible;
                 typeValueLabel.Content = token.GetType().Name;
                 kindValueLabel.Content = kind;
                 _propertyGrid.SelectedObject = token;
@@ -555,6 +561,8 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 typeTextLabel.Visibility = Visibility.Visible;
                 kindTextLabel.Visibility = Visibility.Visible;
+                typeValueLabel.Visibility = Visibility.Visible;
+                kindValueLabel.Visibility = Visibility.Visible;
                 typeValueLabel.Content = trivia.GetType().Name;
                 kindValueLabel.Content = kind;
                 _propertyGrid.SelectedObject = trivia;
@@ -584,8 +592,10 @@ namespace Roslyn.SyntaxVisualizer.Control
             {
                 treeView.Items.Clear();
                 treeView.Items.Add(item);
-                typeTextLabel.Visibility = Visibility.Hidden;
-                kindTextLabel.Visibility = Visibility.Hidden;
+                typeTextLabel.Visibility = Visibility.Collapsed;
+                kindTextLabel.Visibility = Visibility.Collapsed;
+                typeValueLabel.Visibility = Visibility.Collapsed;
+                kindValueLabel.Visibility = Visibility.Collapsed;
                 typeValueLabel.Content = string.Empty;
                 kindValueLabel.Content = string.Empty;
             }
@@ -615,8 +625,10 @@ namespace Roslyn.SyntaxVisualizer.Control
         {
             if (symbol == null)
             {
-                typeTextLabel.Visibility = Visibility.Hidden;
-                kindTextLabel.Visibility = Visibility.Hidden;
+                typeTextLabel.Visibility = Visibility.Collapsed;
+                kindTextLabel.Visibility = Visibility.Collapsed;
+                typeValueLabel.Visibility = Visibility.Collapsed;
+                kindValueLabel.Visibility = Visibility.Collapsed;
                 typeValueLabel.Content = string.Empty;
                 kindValueLabel.Content = string.Empty;
             }
@@ -624,6 +636,8 @@ namespace Roslyn.SyntaxVisualizer.Control
             {
                 typeTextLabel.Visibility = Visibility.Visible;
                 kindTextLabel.Visibility = Visibility.Visible;
+                typeValueLabel.Visibility = Visibility.Visible;
+                kindValueLabel.Visibility = Visibility.Visible;
                 typeValueLabel.Content = symbol.GetType().Name;
                 kindValueLabel.Content = symbol.Kind.ToString();
             }
@@ -771,13 +785,15 @@ namespace Roslyn.SyntaxVisualizer.Control
 
                 if (!value.HasValue)
                 {
-                    typeTextLabel.Visibility = Visibility.Hidden;
+                    typeTextLabel.Visibility = Visibility.Collapsed;
+                    typeValueLabel.Visibility = Visibility.Collapsed;
                     typeValueLabel.Content = string.Empty;
                     _propertyGrid.SelectedObject = null;
                 }
                 else
                 {
                     typeTextLabel.Visibility = Visibility.Visible;
+                    typeValueLabel.Visibility = Visibility.Visible;
                     typeValueLabel.Content = value.Value?.GetType().Name ?? "<null>";
                     _propertyGrid.SelectedObject = value;
                 }

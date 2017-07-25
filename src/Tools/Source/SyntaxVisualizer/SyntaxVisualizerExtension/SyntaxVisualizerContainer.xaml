@@ -31,6 +31,6 @@
     </UserControl.Resources>
 
     <Grid>
-        <s:IOperationVisualizerControl Name="syntaxVisualizer" />
+        <s:SyntaxVisualizerControl Name="syntaxVisualizer" />
     </Grid>
 </UserControl>
